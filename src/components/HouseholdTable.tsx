@@ -1,5 +1,5 @@
-import React from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { HouseholdRow } from '../types/census';
 import {
   isValidMobile,
@@ -26,6 +26,16 @@ export const HouseholdTable: React.FC<HouseholdTableProps> = ({
   showValidationErrors,
   disabled,
 }) => {
+  const headInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  const handleEditRow = (rowId: string) => {
+    const input = headInputRefs.current[rowId];
+    if (input) {
+      input.focus();
+      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   return (
     <section
       id="household-table"
@@ -61,18 +71,16 @@ export const HouseholdTable: React.FC<HouseholdTableProps> = ({
                     #{idx + 1}
                   </span>
                 </div>
-                {rows.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => onRemoveRow(idx)}
-                    disabled={disabled}
-                    aria-label={`Remove row ${idx + 1}`}
-                    className="min-h-[40px] px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 rounded-lg inline-flex items-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
-                    <span>Remove</span>
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => handleEditRow(row.id)}
+                  disabled={disabled}
+                  aria-label={`Edit row ${idx + 1}`}
+                  className="min-h-[40px] px-3 py-1.5 text-xs font-medium text-teal-700 hover:bg-teal-50 rounded-lg inline-flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>Edit</span>
+                </button>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -82,6 +90,9 @@ export const HouseholdTable: React.FC<HouseholdTableProps> = ({
                     <span className="text-red-600">*</span>
                   </label>
                   <input
+                    ref={(el) => {
+                      headInputRefs.current[row.id] = el;
+                    }}
                     type="text"
                     autoCapitalize="characters"
                     placeholder="HEAD NAME IN UPPERCASE"
