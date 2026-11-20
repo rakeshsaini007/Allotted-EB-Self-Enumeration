@@ -353,7 +353,8 @@ function handleSupervisorLookup(params) {
         enumeratorUserId: userId,
         enumeratorSeId: '',
         generatedCount: 0,
-        generatedSeIds: []
+        generatedSeIds: [],
+        generatedSeIdEntries: []
       };
       enumeratorOrder.push(key);
     }
@@ -461,8 +462,14 @@ function handleSupervisorLookup(params) {
         }
 
         var generatedSeId = formatCellAsText(dRow[5]).toUpperCase();
+        var generatedSeDate =
+          formatDateValue(dRaw[6]) || formatCellAsText(dRow[6]);
         if (generatedSeId) {
           entry.generatedSeIds.push(generatedSeId);
+          entry.generatedSeIdEntries.push({
+            seId: generatedSeId,
+            seDate: generatedSeDate
+          });
           entry.generatedCount = entry.generatedSeIds.length;
         }
       }

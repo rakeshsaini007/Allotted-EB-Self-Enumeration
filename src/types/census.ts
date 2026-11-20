@@ -69,6 +69,11 @@ export interface SupervisorRecord {
   supervisorUserId: string;
 }
 
+export interface GeneratedSeIdEntry {
+  seId: string;
+  seDate: string;
+}
+
 export interface SupervisorEnumeratorSummary {
   ebNo: string;
   mobileNumber: string;
@@ -77,6 +82,7 @@ export interface SupervisorEnumeratorSummary {
   enumeratorSeId: string;
   generatedCount: number;
   generatedSeIds: string[];
+  generatedSeIdEntries?: GeneratedSeIdEntry[];
 }
 
 export interface SupervisorLookupResponse {
