@@ -31,28 +31,12 @@ export const HouseholdTable: React.FC<HouseholdTableProps> = ({
       id="household-table"
       className="bg-white border border-slate-200 rounded-2xl overflow-hidden"
     >
-      <div className="px-5 py-4 sm:px-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="px-5 py-4 sm:px-6 border-b border-slate-200">
         <div>
           <h2 className="text-base sm:text-lg font-semibold text-slate-900">
             Household Self Enumeration Details
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            All text inputs must be in UPPERCASE ENGLISH (A–Z) · SE ID format:{' '}
-            <span className="font-mono-tabular font-medium text-slate-700">
-              P + 11 digits
-            </span>
-          </p>
         </div>
-
-        <button
-          type="button"
-          onClick={onAddRow}
-          disabled={disabled}
-          className="min-h-[44px] px-4 py-2 bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white text-sm font-medium rounded-xl inline-flex items-center justify-center gap-2 transition-all whitespace-nowrap shrink-0 disabled:opacity-50 cursor-pointer"
-        >
-          <Plus className="w-4 h-4" aria-hidden="true" />
-          <span>Add New Row</span>
-        </button>
       </div>
 
       {/* Mobile Card Entry Layout (< lg) */}
