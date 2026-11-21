@@ -5,6 +5,7 @@ import {
   FileDown,
   ListFilter,
   Loader2,
+  Phone,
   RefreshCw,
   Save,
   X,
@@ -464,8 +465,21 @@ export const SupervisorDashboard: React.FC<SupervisorDashboardProps> = ({
                         <p className="mt-0.5 text-sm font-semibold text-slate-900">
                           {item.nameOfEnumerator || '—'}
                         </p>
-                        <p className="text-xs text-slate-500 font-mono-tabular mt-0.5">
-                          EB NO: {item.ebNo || '—'} · Mob: {item.mobileNumber || '—'}
+                        <p className="text-xs text-slate-500 font-mono-tabular mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span>EB NO: {item.ebNo || '—'}</span>
+                          <span>·</span>
+                          {item.mobileNumber ? (
+                            <a
+                              href={`tel:${item.mobileNumber.replace(/\D/g, '')}`}
+                              aria-label={`Call ${item.nameOfEnumerator || 'enumerator'} at ${item.mobileNumber}`}
+                              className="inline-flex items-center gap-1 font-semibold text-teal-700 hover:text-teal-800 hover:underline"
+                            >
+                              <Phone className="w-3 h-3 shrink-0" aria-hidden="true" />
+                              <span>{item.mobileNumber}</span>
+                            </a>
+                          ) : (
+                            <span>Mob: —</span>
+                          )}
                         </p>
                       </div>
                     </div>
@@ -565,6 +579,20 @@ export const SupervisorDashboard: React.FC<SupervisorDashboardProps> = ({
                           </div>
                           <div className="text-xs text-slate-500 font-mono-tabular mt-0.5">
                             EB NO: {item.ebNo || '—'}
+                          </div>
+                          <div className="text-xs font-mono-tabular mt-1">
+                            {item.mobileNumber ? (
+                              <a
+                                href={`tel:${item.mobileNumber.replace(/\D/g, '')}`}
+                                aria-label={`Call ${item.nameOfEnumerator || 'enumerator'} at ${item.mobileNumber}`}
+                                className="inline-flex items-center gap-1.5 font-semibold text-teal-700 hover:text-teal-800 hover:underline"
+                              >
+                                <Phone className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                                <span>{item.mobileNumber}</span>
+                              </a>
+                            ) : (
+                              <span className="text-slate-400">Mob: —</span>
+                            )}
                           </div>
                         </td>
                         <td className="py-3.5 px-4 border-r border-slate-300 font-mono-tabular font-medium">
