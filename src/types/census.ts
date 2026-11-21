@@ -108,3 +108,21 @@ export interface SaveResponse {
   timestamp?: string;
   rowCount?: number;
 }
+
+export interface SheetTabData {
+  name: string;
+  gid: number | null;
+  url: string;
+  headers: string[];
+  rows: string[][];
+}
+
+export interface DeveloperSheetsResponse {
+  success: boolean;
+  message?: string;
+  spreadsheetUrl?: string;
+  sheets?: {
+    data: SheetTabData;
+    master: SheetTabData;
+  };
+}

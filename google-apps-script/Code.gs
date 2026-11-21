@@ -154,6 +154,9 @@ function doGet(e) {
     if (action === 'supervisorLookup') {
       return handleSupervisorLookup(params);
     }
+    if (action === 'developerSheets') {
+      return handleDeveloperSheets(params);
+    }
 
     return jsonResponse({ success: false, message: 'Unknown action.' });
   } catch (err) {
@@ -496,6 +499,65 @@ function handleSupervisorLookup(params) {
     seIdOfSupervisor: seIdOfSupervisor,
     timestamp: lastTimestamp,
     enumerators: enumerators
+  });
+}
+
+function handleDeveloperSheets(params) {
+  var password = String(params.password || '');
+  if (password !== 'Admin@2026') {
+    return jsonResponse({
+      success: false,
+      message: 'Unauthorized: Invalid developer password.'
+    });
+  }
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var baseUrl = ss.getUrl();
+  var dataSheet = ss.getSheetByName(DATA_SHEET_NAME);
+  var masterSheet = ss.getSheetByName(MASTER_SHEET_NAME);
+
+  function readSheet(sheet, fallbackName) {
+    if (!sheet) {
+      return {
+        name: fallbackName,
+        gid: null,
+        url: baseUrl,
+        headers: [],
+        rows: []
+      };
+    }
+
+    var gid = sheet.getSheetId();
+    var lastRow = sheet.getLastRow();
+    var lastCol = sheet.getLastColumn();
+    var headers = [];
+    var rows = [];
+
+    if (lastRow >= 1 && lastCol >= 1) {
+      headers = sheet.getRange(1, 1, 1, lastCol).getDisplayValues()[0];
+      if (lastRow >= 2) {
+        rows = sheet
+          .getRange(2, 1, lastRow - 1, lastCol)
+          .getDisplayValues();
+      }
+    }
+
+    return {
+      name: sheet.getName(),
+      gid: gid,
+      url: baseUrl + '#gid=' + gid,
+      headers: headers,
+      rows: rows
+    };
+  }
+
+  return jsonResponse({
+    success: true,
+    spreadsheetUrl: baseUrl,
+    sheets: {
+      data: readSheet(dataSheet, DATA_SHEET_NAME),
+      master: readSheet(masterSheet, MASTER_SHEET_NAME)
+    }
   });
 }
 

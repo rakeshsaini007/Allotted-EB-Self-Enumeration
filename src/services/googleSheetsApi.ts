@@ -3,6 +3,7 @@ import {
   isGoogleScriptConfigured,
 } from '../config/googleSheetConfig';
 import {
+  DeveloperSheetsResponse,
   HouseholdRow,
   LookupResponse,
   SaveDataPayload,
@@ -209,6 +210,48 @@ async function postToScript(
     throw err instanceof Error
       ? err
       : new Error('Unable to save data to Google Sheets.');
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
+export async function fetchDeveloperSheets(
+  password: string
+): Promise<DeveloperSheetsResponse> {
+  if (!isGoogleScriptConfigured()) {
+    throw new Error(
+      'Google Apps Script URL is not configured. Add your Web App URL in src/config/googleSheetConfig.ts.'
+    );
+  }
+
+  const url = new URL(GOOGLE_SCRIPT_URL.trim());
+  url.searchParams.set('action', 'developerSheets');
+  url.searchParams.set('password', password);
+
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 25000);
+
+  try {
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      redirect: 'follow',
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    return (await response.json()) as DeveloperSheetsResponse;
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error(
+        'Request timed out. Please check your internet connection and try again.'
+      );
+    }
+    throw err instanceof Error
+      ? err
+      : new Error('Unable to connect to Google Sheets service.');
   } finally {
     window.clearTimeout(timeoutId);
   }

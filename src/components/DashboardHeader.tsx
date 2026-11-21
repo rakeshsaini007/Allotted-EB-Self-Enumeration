@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogOut } from 'lucide-react';
+import { Lock, LogOut } from 'lucide-react';
 import { UserRole } from '../types/census';
 
 interface DashboardHeaderProps {
@@ -7,6 +7,7 @@ interface DashboardHeaderProps {
   activeRole: UserRole;
   hasExistingData: boolean;
   onChangeUser: () => void;
+  onOpenDeveloperModal: () => void;
 }
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
@@ -14,6 +15,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   activeRole,
   hasExistingData,
   onChangeUser,
+  onOpenDeveloperModal,
 }) => {
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200">
@@ -86,9 +88,21 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <div className="hidden md:block" />
         )}
 
-        {/* Zone 3: 1 primary action */}
-        <div className="flex items-center shrink-0">
-          {isAuthenticated ? (
+        {/* Zone 3: Actions */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={onOpenDeveloperModal}
+            aria-label="Developer Google Sheet Access"
+            className="min-h-[40px] px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+          >
+            <Lock className="w-3.5 h-3.5 text-slate-600" aria-hidden="true" />
+            <span className={isAuthenticated ? 'hidden sm:inline' : ''}>
+              Sheets
+            </span>
+          </button>
+
+          {isAuthenticated && (
             <button
               type="button"
               onClick={onChangeUser}
@@ -99,12 +113,6 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 {activeRole === 'supervisor' ? 'Switch Circle' : 'Switch EB'}
               </span>
             </button>
-          ) : (
-            <span className="text-xs font-medium text-slate-500 whitespace-nowrap shrink-0">
-              {activeRole === 'supervisor'
-                ? 'Supervisor Login'
-                : 'Enumerator Login'}
-            </span>
           )}
         </div>
       </div>

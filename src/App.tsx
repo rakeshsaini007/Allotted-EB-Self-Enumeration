@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { AlertModal } from './components/AlertModal';
 import { DashboardHeader } from './components/DashboardHeader';
+import { DeveloperSheetModal } from './components/DeveloperSheetModal';
 import { ExistingDataCard } from './components/ExistingDataCard';
 import { HouseholdTable } from './components/HouseholdTable';
 import { LoginScreen } from './components/LoginScreen';
@@ -77,6 +78,8 @@ export default function App() {
     mode: 'saved',
     message: '',
   });
+
+  const [developerModalOpen, setDeveloperModalOpen] = useState(false);
 
   const isAuthenticated = Boolean(master || supervisor);
   const isSeIdValid = isValidSeId(seIdOfEnumerator);
@@ -403,6 +406,7 @@ export default function App() {
             : hasExistingData
         }
         onChangeUser={handleSwitchUser}
+        onOpenDeveloperModal={() => setDeveloperModalOpen(true)}
       />
 
       <main className="flex-1">
@@ -639,6 +643,12 @@ export default function App() {
             isOpen: false,
           }))
         }
+      />
+
+      {/* Developer Google Sheet Navigator Modal */}
+      <DeveloperSheetModal
+        isOpen={developerModalOpen}
+        onClose={() => setDeveloperModalOpen(false)}
       />
     </div>
   );
