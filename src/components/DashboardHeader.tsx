@@ -62,25 +62,17 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               >
                 Details
               </a>
-              {hasExistingData && (
-                <a
-                  href="#existing-record"
-                  className="hover:text-slate-900 transition-colors whitespace-nowrap shrink-0"
-                >
-                  Saved Card
-                </a>
-              )}
+              <a
+                href="#existing-record"
+                className="hover:text-slate-900 transition-colors whitespace-nowrap shrink-0"
+              >
+                {hasExistingData ? 'Saved Data' : 'Household Entry'}
+              </a>
               <a
                 href="#se-id-section"
                 className="hover:text-slate-900 transition-colors whitespace-nowrap shrink-0"
               >
                 Enumerator SE ID
-              </a>
-              <a
-                href="#household-table"
-                className="hover:text-slate-900 transition-colors whitespace-nowrap shrink-0"
-              >
-                Household Table
               </a>
             </nav>
           )

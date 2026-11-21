@@ -11,7 +11,6 @@ import { AlertModal } from './components/AlertModal';
 import { DashboardHeader } from './components/DashboardHeader';
 import { DeveloperSheetModal } from './components/DeveloperSheetModal';
 import { ExistingDataCard } from './components/ExistingDataCard';
-import { HouseholdTable } from './components/HouseholdTable';
 import { LoginScreen } from './components/LoginScreen';
 import { PrefilledDetailsCard } from './components/PrefilledDetailsCard';
 import { SupervisorDashboard } from './components/SupervisorDashboard';
@@ -39,9 +38,11 @@ export default function App() {
   // Enumerator state
   const [master, setMaster] = useState<MasterRecord | null>(null);
   const [hasExistingData, setHasExistingData] = useState(false);
-  const [existingRows, setExistingRows] = useState<HouseholdRow[]>([]);
   const [seIdOfEnumerator, setSeIdOfEnumerator] = useState('');
   const [rows, setRows] = useState<HouseholdRow[]>([createEmptyHouseholdRow(1)]);
+  const [editingRowIds, setEditingRowIds] = useState<Record<string, boolean>>(
+    {}
+  );
 
   // Supervisor state
   const [supervisor, setSupervisor] = useState<SupervisorRecord | null>(null);
@@ -148,10 +149,10 @@ export default function App() {
 
         const hasData = Boolean(res.hasExistingData && fetchedRows.length > 0);
         setHasExistingData(hasData);
-        setExistingRows(fetchedRows);
         setLastTimestamp(res.timestamp || '');
         setSeIdOfEnumerator((res.seIdOfEnumerator || '').toUpperCase());
         setRows(hasData ? fetchedRows : [createEmptyHouseholdRow(1)]);
+        setEditingRowIds({});
         setShowValidationErrors(false);
       }
     } catch (err) {
@@ -168,9 +169,9 @@ export default function App() {
   const handleSwitchUser = () => {
     setMaster(null);
     setHasExistingData(false);
-    setExistingRows([]);
     setSeIdOfEnumerator('');
     setRows([createEmptyHouseholdRow(1)]);
+    setEditingRowIds({});
 
     setSupervisor(null);
     setSupervisorEnumerators([]);
@@ -197,7 +198,13 @@ export default function App() {
   };
 
   const handleAddRow = () => {
-    setRows((prev) => [...prev, createEmptyHouseholdRow(prev.length + 1)]);
+    const newRow = createEmptyHouseholdRow(rows.length + 1);
+    setRows((prev) => [...prev, newRow]);
+    setEditingRowIds((prev) => ({ ...prev, [newRow.id]: true }));
+  };
+
+  const handleToggleEditRow = (rowId: string) => {
+    setEditingRowIds((prev) => ({ ...prev, [rowId]: !prev[rowId] }));
   };
 
   const handleRemoveRow = (index: number) => {
@@ -288,8 +295,8 @@ export default function App() {
       }));
 
       setHasExistingData(true);
-      setExistingRows(syncedRows);
       setRows(syncedRows);
+      setEditingRowIds({});
       if (res.timestamp) {
         setLastTimestamp(res.timestamp);
       }
@@ -483,12 +490,20 @@ export default function App() {
             {/* 1. Prefilled Master Data */}
             <PrefilledDetailsCard master={master} />
 
-            {/* 2. Existing Data Card (if already saved in Data sheet) */}
+            {/* 2. Existing Saved Data Card with Edit & Add New Row above */}
             {hasExistingData && (
               <ExistingDataCard
-                rows={existingRows}
+                rows={rows}
+                hasExistingData={true}
                 seIdOfEnumerator={seIdOfEnumerator}
                 timestamp={lastTimestamp}
+                editingRowIds={editingRowIds}
+                onToggleEditRow={handleToggleEditRow}
+                onChangeRow={handleRowChange}
+                onAddRow={handleAddRow}
+                onRemoveRow={handleRemoveRow}
+                showValidationErrors={showValidationErrors}
+                disabled={submitting}
               />
             )}
 
@@ -537,18 +552,26 @@ export default function App() {
               </div>
             </section>
 
-            {/* 4. Conditional Table (only displayed after entering valid SE ID of Enumerator) */}
-            {isSeIdValid && (
-              <>
-                <HouseholdTable
-                  rows={rows}
-                  onChangeRow={handleRowChange}
-                  onAddRow={handleAddRow}
-                  onRemoveRow={handleRemoveRow}
-                  showValidationErrors={showValidationErrors}
-                  disabled={submitting}
-                />
+            {/* New entry card for first-time enumerators (only after valid SE ID) */}
+            {!hasExistingData && isSeIdValid && (
+              <ExistingDataCard
+                rows={rows}
+                hasExistingData={false}
+                seIdOfEnumerator={seIdOfEnumerator}
+                timestamp={lastTimestamp}
+                editingRowIds={editingRowIds}
+                onToggleEditRow={handleToggleEditRow}
+                onChangeRow={handleRowChange}
+                onAddRow={handleAddRow}
+                onRemoveRow={handleRemoveRow}
+                showValidationErrors={showValidationErrors}
+                disabled={submitting}
+              />
+            )}
 
+            {/* Submit / Update Action Bar */}
+            {(hasExistingData || isSeIdValid) && (
+              <>
                 {submitError && (
                   <div
                     role="alert"
@@ -581,7 +604,9 @@ export default function App() {
                           aria-hidden="true"
                         />
                         <span>
-                          {hasExistingData ? 'Updating Data...' : 'Saving Data...'}
+                          {hasExistingData
+                            ? 'Updating Data...'
+                            : 'Saving Data...'}
                         </span>
                       </>
                     ) : hasExistingData ? (
